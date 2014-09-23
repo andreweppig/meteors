@@ -1,10 +1,14 @@
 var width = 1000,
 	height = 500;
 
-var proj = d3.geo.mercator()
-		.center([0, 0])
-		.scale(180)
-		.rotate([-10,0]);
+var proj = d3.geo.albersUsa()
+    .scale(1050) //1285
+    .translate([width / 2, height / 2]);
+
+//var proj = d3.geo.mercator()
+//		.center([0, 0])
+//		.scale(180)
+//		.rotate([-10,0]);
 
 var path = d3.geo.path()
 		.projection(proj);
@@ -29,9 +33,13 @@ function zoom() {
 		.attr("cy", function(d){return proj([d.long, d.lat])[1];});
 }
 
-var borders = svg.append("g");
+var borders;
 
-var impacts = svg.append("g");
+var impacts;
+
+//var borders = svg.append("g");
+
+//var impacts = svg.append("g");
 
 var metorScale = d3.scale.pow().exponent(.5).domain([0, 1000, 10000, 56000, 23000000]);
 
@@ -42,28 +50,50 @@ var tooltip = d3.select("body").append("div")
     .style("opacity", 1e-6)
     .style("background", "rgba(250,250,250,.7)");
 
-tooltip.append("img")
-	.attr("id", "tooltipImg")
-	.attr("height", 200)
-	.attr("width", 200)
-	.style("opacity", "1");
+//tooltip.append("img")
+//	.attr("id", "tooltipImg")
+//	.attr("height", 200)
+//	.attr("width", 200)
+//	.style("opacity", "1");
 
 queue()
-	.defer(d3.json, "worldTopo.json")
+	.defer(d3.json, "us.json")
+//	.defer(d3.json, "worldTopo.json")
 	.defer(d3.csv, "fell.csv")
 	.defer(d3.json, "pics.json")
 	.await(ready);
 
 var metors;
 function ready(error, topology, csv, pics){
-	borders.selectAll("path")
-		.data(topojson.object(topology, topology.objects.countries)
-				.geometries)
-	.enter()
-		.append("path")
-		.attr("d", path)
-		.attr("class", "border")
+//	borders.selectAll("path")
+//		.data(topojson.object(topology, topology.objects.countries)
+//		.data(topojson.features(topology, topology.objects.land)
+//				.geometries)
+
+	svg.insert("path", ".graticule")
+		.datum(topojson.mesh(topology, topology.objects.land))
+		.attr("class", "land")
+		.attr("d", path);
+
+//	svg.insert("path", ".graticule")
+//		.datum(topojson.mesh(topology, topology.objects.counties, function(a, b) { return a !== b && !(a.id / 1000 ^ b.id / 1000); }))
+//		.attr("class", "county-boundary")
+//		.attr("d", path);
+
+//
+	svg.insert("path", ".graticule")
+		.datum(topojson.mesh(topology, topology.objects.states, function(a, b) { return a !== b; }))
+		.attr("class", "state-boundary")
+		.attr("d", path);
+//    
+//	.enter()
+//		.append("path")
+//		.attr("d", path)
+//		.attr("class", "border")
 	
+        borders = svg.append("g");
+        impacts = svg.append("g");
+
 	rawMetors = csv;
 
 	metors = [];
@@ -71,9 +101,9 @@ function ready(error, topology, csv, pics){
 		d.mass = +d.mass_g;
 		d.year = +d.year;
 		d.id = +d.cartodb_id;
-		if (pics.indexOf(d.name + '.jpg') != -1){
+		//if (pics.indexOf(d.name + '.jpg') != -1){
 			metors.push(d);
-		}
+		//}
 	});
 	metors.sort(function(a, b){return a.id - b.id;})
 
@@ -91,9 +121,12 @@ function ready(error, topology, csv, pics){
 			.append("circle")
 				.attr("cx", function(d){return proj([d.long, d.lat])[0];})
 				.attr("cy", function(d){return proj([d.long, d.lat])[1];})
-				.attr("r", 	function(d){return metorScale(d.mass);})
+//				.attr("r", 	function(d){return metorScale(d.mass);})
+				.attr("r", 	5)
 				.attr("id", function(d){return "id" + d.id;})
-				.style("fill", function(d){return colorScale(d.year);	})
+//				.style("fill", function(d){return colorScale(d.year);	})
+//				.style("fill", "#CFDD45")
+				.style("fill", "rgba(207,221,69, .5)")
 		.on("mouseover", function(d){
 			d3.select(this)
 				.attr("stroke", "black")
@@ -121,14 +154,15 @@ function ready(error, topology, csv, pics){
 	metorsCF = crossfilter(metors),
 		all = metorsCF.groupAll(),
 		year = metorsCF.dimension(function(d){return d.year;}),
-		years = year.group(function(d){return Math.floor(d/10)*10;}),
+		years = year.group(function(d){return d;}),
+//		years = year.group(function(d){return Math.floor(d/10)*10;}),
 		mass = metorsCF.dimension(function(d){return d.mass}),
-		masses = mass.group(function(d){ 
-			var rv = Math.pow(lb, Math.floor(Math.log(d)/Math.log(lb)))
-			return rv;}),
+		//masses = mass.group(function(d){ 
+		//	var rv = Math.pow(lb, Math.floor(Math.log(d)/Math.log(lb)))
+		//	return rv;}),
 		type = metorsCF.dimension(function(d){return d.type_of_meteorite;}),
 		types = type.group();
-
+	
 		cartoDbId = metorsCF.dimension(function(d){return d.id;});
 		cartoDbIds = cartoDbId.group()
 
@@ -137,15 +171,15 @@ function ready(error, topology, csv, pics){
 				.dimension(year)
 				.group(years)
 			.x(d3.scale.linear()
-				.domain([1490,2020])
+				.domain([1980,2015])
 				.rangeRound([-1, 20*24-5])),
 
-		barChart()
-				.dimension(mass)
-				.group(masses)
-			.x(d3.scale.log().base([lb])
-				.domain([1,25000001])
-				.rangeRound([0,20*24]))
+		//barChart()
+		//		.dimension(mass)
+		//		.group(masses)
+		//	.x(d3.scale.log().base([lb])
+		//		.domain([1,25000001])
+		//		.rangeRound([0,20*24]))
 	];
 
 	var chart = d3.selectAll(".chart")
@@ -174,9 +208,15 @@ function ready(error, topology, csv, pics){
 			if (d.value != lastFilterArray[i]){
 				lastFilterArray[i] = d.value;
 				d3.select("#id" + d.key).transition().duration(500)
-						.attr("r", d.value == 1 ? 2*metorScale(metors[i].mass) : 0)
+//						.attr("r", 5)
+						.attr("r", d.value == 1 ? 10 : 0)
+//						.attr("r", d.value == 1 ? 2*metorScale(metors[i].mass) : 0)
+				                .style("fill", "rgba(207,221,69, 1)")
 					.transition().delay(550).duration(500)
-						.attr("r", d.value == 1 ? metorScale(metors[i].mass) : 0);
+//						.attr("r", 5)
+						.attr("r", d.value == 1 ? 5 : 0)
+//						.attr("r", d.value == 1 ? metorScale(metors[i].mass) : 0);
+				                .style("fill", "rgba(207,221,69, .1)")
 
 			}
 		})
@@ -195,15 +235,16 @@ function ready(error, topology, csv, pics){
 
 var printDetails = [
 					{'var': 'name', 'print': 'Name'},
-					{'var': 'type_of_meteorite', 'print': 'Type'},
-					{'var': 'mass_g', 'print': 'Mass(g)'},
-					{'var': 'year', 'print': 'Year'}];
+					{'var': 'type_of_meteorite', 'print': 'Current Position'},
+					{'var': 'fell_found', 'print': 'Current Institution'},
+//					{'var': 'mass_g', 'print': 'Mass(g)'},
+					{'var': 'year', 'print': 'PPFP Cohort Year'}];
 
 function updateDetails(metor){
-	var image = new Image();
-	image.onload = function(){
-		document.getElementById("tooltipImg").src = 'pictures/' + metor.cartodb_id + '.jpg';}
-	image.src = 'pictures/' + metor.cartodb_id + '.jpg';
+	//var image = new Image();
+	//image.onload = function(){
+	//	document.getElementById("tooltipImg").src = 'pictures/' + metor.cartodb_id + '.jpg';}
+	//image.src = 'pictures/' + metor.cartodb_id + '.jpg';
 
 	tooltip.selectAll("div").remove();
 	tooltip.selectAll("div").data(printDetails).enter()

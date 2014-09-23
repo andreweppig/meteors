@@ -19,11 +19,29 @@ h1 {
   margin-top: .3em;
   margin-bottom: 0;
   display: inline-block;
+  color: #2D637F;
+}
+
+.land {
+/*  fill: #53626F; */
+  fill: rgba(83,98,111,1); 
+}
+
+.county-boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+
+.state-boundary {
+  fill: none;
+  stroke: #fff;
 }
 
 #instructions{
   font-size: 90%;
   margin-left: 50px;
+  color: #E09E19;
 }
 
 h1 + h2 {
@@ -81,8 +99,8 @@ div.tooltip {
 }
 
 #links{
-  text-align: right;
-  margin-right: 267px;
+  text-align: center;
+  margin-right: 0px;
   margin-bottom: 10px;
 }
 
@@ -122,10 +140,11 @@ div.tooltip {
   text-align: left;
   margin-left: 40px;
   font-weight: bold;
+  color: #2D637F;
 }
 
 #year-chart .foreground.bar {
-  fill: #ff7f0e;
+  fill: #CFDD45;
 }
 
 #mass-chart .foreground.bar {
@@ -162,5 +181,5 @@ div.tooltip {
 }
 
 #year-chart {
-  width: 500px;
+  width: 1000px;
 }
