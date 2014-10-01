@@ -114,7 +114,7 @@ function barChart() {
           + "V" + (2 * y - 8);
     }
   }
-
+ 
   brush.on("brushstart.chart", function() {
     var div = d3.select(this.parentNode.parentNode.parentNode);
     div.select(".title a").style("display", null);
@@ -184,11 +184,15 @@ function barChart() {
       dimension.filterRange(_);
     } else {
       brush.clear();
+      //brush.extent([1984, 1986]);
+      //dimension.filterRange([1984, 1986]);
       dimension.filterAll();
     }
     brushDirty = true;
     return chart;
   };
+
+
 
   chart.group = function(_) {
     if (!arguments.length) return group;

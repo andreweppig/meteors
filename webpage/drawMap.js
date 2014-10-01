@@ -16,7 +16,7 @@ var path = d3.geo.path()
 var zoom = d3.behavior.zoom()
     .translate(proj.translate())
     .scale(proj.scale())
-    .scaleExtent([height*.33, 4 * height])
+    .scaleExtent([height*.9, 40 * height])
     .on("zoom", zoom);
 
 
@@ -119,7 +119,9 @@ function ready(error, topology, csv, pics){
 		    	.attr("xlink:href", function(d) { return d.database; })
 		    	.attr("xlink:show", "new")
 			.append("circle")
-				.attr("cx", function(d){return proj([d.long, d.lat])[0];})
+				.attr("cx", function(d){
+				    return proj([d.long, d.lat])[0];
+				})
 				.attr("cy", function(d){return proj([d.long, d.lat])[1];})
 //				.attr("r", 	function(d){return metorScale(d.mass);})
 				.attr("r", 	5)
@@ -171,7 +173,7 @@ function ready(error, topology, csv, pics){
 				.dimension(year)
 				.group(years)
 			.x(d3.scale.linear()
-				.domain([1980,2015])
+				.domain([1984,2014])
 				.rangeRound([-1, 20*24-5])),
 
 		//barChart()
@@ -184,7 +186,7 @@ function ready(error, topology, csv, pics){
 
 	var chart = d3.selectAll(".chart")
 			.data(charts)
-			.each(function(chart){chart.on("brush", renderAll).on("brushend", renderAll)});
+			.each(function(chart){chart.on("brush", renderAll).on("brushend", renderAll);});
 
 	d3.selectAll("#total")
 			.text(metorsCF.size());
@@ -216,7 +218,7 @@ function ready(error, topology, csv, pics){
 //						.attr("r", 5)
 						.attr("r", d.value == 1 ? 5 : 0)
 //						.attr("r", d.value == 1 ? metorScale(metors[i].mass) : 0);
-				                .style("fill", "rgba(207,221,69, .1)")
+				                .style("fill", "rgba(207,221,69, .5)")
 
 			}
 		})

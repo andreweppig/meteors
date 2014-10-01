@@ -42,6 +42,7 @@ h1 {
   font-size: 90%;
   margin-left: 50px;
   color: #E09E19;
+  font-weight: bold;
 }
 
 h1 + h2 {
@@ -122,7 +123,7 @@ div.tooltip {
   overflow: hidden;
 }
 
-#mass-chart{
+#description-text{
   border-left: solid 1px #aaa;
 }
 
@@ -143,11 +144,19 @@ div.tooltip {
   color: #2D637F;
 }
 
+.description{
+  text-align: left;
+  margin-left: 40px;
+  color: #E09E19;
+  height: 150px;
+  position: relative;
+  top: -30px;
+}
 #year-chart .foreground.bar {
   fill: #CFDD45;
 }
 
-#mass-chart .foreground.bar {
+#description-text .foreground.bar {
   fill:  #d62728;
 }
 
@@ -176,10 +185,10 @@ div.tooltip {
   stroke: #666;
 }
 
-#mass-chart {
+#description-text {
   width: 500px;
 }
 
 #year-chart {
-  width: 1000px;
+  width: 500px;
 }
